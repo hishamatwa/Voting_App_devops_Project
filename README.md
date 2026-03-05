@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Voting App – End-to-End Kubernetes Deployment + Automation (Linux/Docker/K8s/Ansible)
 
 This repo provides an end-to-end example of running and automating a microservices voting application using ONLY:
@@ -239,3 +240,32 @@ kubectl logs -n voting deploy/db --tail=80
 ## 13) Reference
 Original reference project:
 https://github.com/nexusameer/Voting-App-Microservices
+=======
+# Voting App - Kubernetes + Docker + Ansible (Easy)
+
+## 1) Architecture (Simple)
+Microservices:
+
+- Front-End:
+  - **vote**: voting UI
+  - **result**: results UI
+- Back-End:
+  - **worker**: reads votes from redis and writes to postgres
+- Data:
+  - **redis**: queue
+  - **postgres (db)**: database (persistent)
+
+Flow:
+User -> vote -> redis -> worker -> postgres -> result
+
+## 2) Folder structure
+- `kubernetes/apps/voting/base` : original demo YAML
+- `kubernetes/apps/voting/dev`  : works on local kind (no CPU requests)
+- `kubernetes/apps/voting/prod` : production-ish (resources + probes)
+- `ansible/playbooks`           : automation (deploy/cleanup)
+
+## 3) Run with Docker
+```bash
+docker compose up -d --build
+docker compose ps
+>>>>>>> 9063484 (Initial commit: voting app k8s + ansible automation + security)
