@@ -1,18 +1,12 @@
-# kubernetes/prod
+# kubernetes/dev
 
-This folder contains the production-style Kubernetes manifests for the Voting App.
+This folder contains the Kubernetes manifests for the local demo environment of the Voting App.
 
 ## Purpose
 
-This environment provides a more complete and structured Kubernetes setup than `kubernetes/base`.
+This environment is designed to work reliably on a local kind cluster or a single-node Kubernetes setup.
 
-It is designed to include:
-- persistent PostgreSQL storage
-- Secret-based database password management
-- health probes for application readiness and liveness
-- container security hardening
-- internal service isolation with NetworkPolicy
-- external access only for frontend services
+It provides a more complete setup than `kubernetes/base` while still being simple enough for local testing and demonstration.
 
 ## Included Components
 
@@ -52,10 +46,10 @@ These policies restrict ingress traffic and allow only the required communicatio
 
 ## Security Features
 
-This folder includes several security improvements:
+This folder includes:
 - PostgreSQL password stored in a Kubernetes Secret
 - `allowPrivilegeEscalation: false`
-- unnecessary Linux capabilities dropped
+- dropped unnecessary Linux capabilities
 - `seccompProfile: RuntimeDefault`
 - NetworkPolicy-based ingress control
 
@@ -90,13 +84,11 @@ This is acceptable because Redis is used only as a temporary processing layer, n
 
 ## Network Access
 
-### External
 Frontend services are exposed using NodePort:
 - `vote` -> `31000`
 - `result` -> `31001`
 
-### Internal
-Data services are internal only:
+Internal services remain inside the cluster:
 - `db` -> ClusterIP
 - `redis` -> ClusterIP
 
@@ -117,11 +109,11 @@ This reduces unnecessary exposure of internal services.
 
 ## Notes
 
-This folder represents the stronger and more complete deployment setup compared with `kubernetes/base`.
+This is the recommended environment for the local demo.
 
-It is suitable for demonstrating:
+It is more complete than `kubernetes/base` and demonstrates:
 - persistence
 - service separation
-- health monitoring
+- health probes
 - basic Kubernetes security hardening
-- controlled external exposure
+- controlled external access
