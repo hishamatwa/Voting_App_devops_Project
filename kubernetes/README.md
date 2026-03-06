@@ -1,11 +1,22 @@
+
 # Kubernetes Manifests
 
 This folder contains Kubernetes YAML manifests for the Voting App.
 
-Structure:
-- apps/voting/base : reference manifests
-- apps/voting/dev  : tuned for local kind (single-node)
-- apps/voting/prod : production-ish manifests (may need more cluster resources)
+## Environments
+- `kubernetes/base/`
+  - Minimal reference manifests (Deployments + Services only)
 
-DEV is used for local demo.
-PROD is used to show production concepts (resources/limits, stricter policies).
+- `kubernetes/dev/`
+  - Tuned for local kind / single-node clusters
+  - Includes Secret + PV/PVC + NetworkPolicies + Probes + SecurityContext
+
+- `kubernetes/prod/`
+  - Production-ish example manifests
+  - May require more CPU/memory than a small local cluster
+
+## How deploy chooses dev/prod
+Ansible uses:
+- `-e env=dev`  -> applies `kubernetes/dev`
+- `-e env=prod` -> applies `kubernetes/prod`
+
