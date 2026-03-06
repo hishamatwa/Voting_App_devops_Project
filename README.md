@@ -1,7 +1,7 @@
-# Voting App DevOps Project  
+# Voting App DevOps Project
 Linux + Docker + Kubernetes + Ansible
 
-This repository contains an end-to-end DevOps project for deploying a microservices-based **Voting Application** on Kubernetes using **Ansible automation**.
+This repository contains an end-to-end DevOps project for deploying a microservices-based Voting Application on Kubernetes using Ansible automation.
 
 ## Project Overview
 
@@ -10,9 +10,9 @@ This project demonstrates:
 - a clear microservices architecture
 - Kubernetes manifests organized by environment
 - Ansible playbooks for deployment and cleanup
-- persistence for PostgreSQL
+- persistent storage for PostgreSQL
 - health checks and container hardening
-- security-focused configuration for local demo environments
+- security-focused configuration for the local demo environment
 
 ---
 
@@ -68,7 +68,7 @@ Architecture diagram:
 ## Repository Structure
 
 - `kubernetes/` – Kubernetes manifests for `base`, `dev`, and `prod`
-- `ansible/` – Ansible playbooks for deploy and cleanup
+- `ansible/` – Ansible playbooks for deployment and cleanup
 - `scripts/` – optional helper scripts
 - `docs/` – architecture, security review, and meeting notes
 - `architecture/` – architecture diagram
