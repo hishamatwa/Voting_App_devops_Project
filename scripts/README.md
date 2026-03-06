@@ -1,6 +1,8 @@
 # Scripts
 
-Helper scripts (optional):
-- deploy-dev.sh  : deploy dev using ansible
-- deploy-prod.sh : deploy prod using ansible
-- cleanup.sh     : cleanup resources using ansible
+Helper scripts (optional) to run Ansible faster.
+
+## Files
+- `deploy-dev.sh`  : deploy dev environment
+- `deploy-prod.sh` : deploy prod environment
+- `cleanup.sh`     : cleanup resources
