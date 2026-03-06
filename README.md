@@ -115,3 +115,57 @@ The `dev` environment is the recommended setup for local demos.
 ### 1) Get the node IP
 ```bash
 kubectl get nodes -o wide
+
+### 2) Deploy with Ansible
+ansible-playbook -i localhost, ansible/playbooks/deploy_env.yml -e env=dev -e node_ip=172.18.0.2
+
+
+3) Access the application
+
+http://172.18.0.2:31000
+
+http://172.18.0.2:31001
+
+4) Quick check
+curl -I http://172.18.0.2:31000
+curl -I http://172.18.0.2:31001
+
+
+5) Verify resources
+kubectl get pods -n voting
+kubectl get svc -n voting
+kubectl get networkpolicy -n voting
+
+Deploy (PROD)
+ansible-playbook -i localhost, ansible/playbooks/deploy_env.yml -e env=prod -e node_ip=172.18.0.2
+
+
+Cleanup
+ansible-playbook -i localhost, ansible/playbooks/cleanup.yml
+
+Security Highlights
+Implemented security controls include:
+Kubernetes Secret for PostgreSQL password
+PV/PVC for PostgreSQL persistence
+readiness and liveness probes
+SecurityContext hardening:
+allowPrivilegeEscalation: false
+drop unnecessary Linux capabilities
+seccompProfile: RuntimeDefault
+
+NetworkPolicies in the dev environment:
+default deny ingress
+allow internal namespace communication
+allow external access only to vote and result
+
+Notes
+
+dev is the recommended environment for local demos and presentations
+base is mainly for learning and reference
+prod is a more production-style layout, but may need additional improvements for full production readiness
+
+### Project Reference
+
+Based on the Voting App microservices idea:
+https://github.com/nexusameer/Voting-App-Microservices
+
