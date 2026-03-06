@@ -9,7 +9,8 @@
     node_ip: "172.18.0.2"
 
     project_root: "{{ playbook_dir }}/../.."
-    manifests_dir: "{{ project_root }}/kubernetes/apps/voting/{{ env }}"
+    manifests_dir: "{{ project_root }}/kubernetes/{{ env }}"
+ 
 
   tasks:
     - name: Show env

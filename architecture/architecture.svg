@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="520" viewBox="0 0 1000 520">
+  <style>
+    .box { fill:none; stroke:#000; stroke-width:2; }
+    .t { font-family:Arial; font-size:18px; text-anchor:middle; dominant-baseline:middle; }
+    .a { stroke:#000; stroke-width:2; fill:none; marker-end:url(#m); }
+  </style>
+  <defs>
+    <marker id="m" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#000"/>
+    </marker>
+  </defs>
+
+  <rect class="box" x="40" y="60" width="180" height="90"/>
+  <text class="t" x="130" y="105">USER</text>
+
+  <rect class="box" x="280" y="60" width="300" height="90"/>
+  <text class="t" x="430" y="95">FRONTEND</text>
+  <text class="t" x="430" y="120">Vote (Python) | Result (NodeJS)</text>
+
+  <rect class="box" x="650" y="60" width="300" height="90"/>
+  <text class="t" x="800" y="105">BACKEND</text>
+  <text class="t" x="800" y="130">Worker (.NET)</text>
+
+  <rect class="box" x="280" y="230" width="300" height="110"/>
+  <text class="t" x="430" y="280">DATA: Redis</text>
+
+  <rect class="box" x="650" y="230" width="300" height="110"/>
+  <text class="t" x="800" y="280">DATA: PostgreSQL</text>
+
+  <path class="a" d="M220 105 L280 105"/>
+  <path class="a" d="M580 105 L650 105"/>
+  <path class="a" d="M800 150 L500 230"/>
+  <path class="a" d="M500 340 L650 285"/>
+
+  <text class="t" x="500" y="460" style="font-size:20px;">
+    Flow: USER -> Vote -> Redis -> Worker -> PostgreSQL -> Result
+  </text>
+</svg>
