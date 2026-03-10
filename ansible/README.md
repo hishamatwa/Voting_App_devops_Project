@@ -1,93 +1,152 @@
-
 # Ansible Automation
 
-This folder contains Ansible playbooks that automate deploying the Voting App to Kubernetes using `kubectl`.
-Ansible runs on **localhost** and executes `kubectl` commands for you (deploy + verify + cleanup).
+This folder contains the Ansible configuration used to automate deployment and cleanup of the Voting Application on Kubernetes.
+
+Ansible runs locally and executes `kubectl` commands to deploy the application infrastructure and services.
 
 ---
 
-## Main playbooks 
-1) `ansible/playbooks/deploy_env.yml`
-- Deploys the app using `env=dev` or `env=prod`
-- Creates namespace
-- Applies PV (if exists)
-- Applies all manifests
-- Waits for pods to become Ready
-- Verifies endpoints using curl (vote/result)
+# Folder Structure
 
-2) `ansible/playbooks/cleanup.yml`
-- Deletes resources and resets the environment (namespace + policies + pvc + secrets)
 
----
+ansible/
+│
+├── inventory.ini
+├── README.md
+│
+├── playbooks/
+│ ├── deploy.yml
+│ └── cleanup.yml
+│
+└── vars/
+├── dev.yml
+└── prod.yml
 
-## Important variables you must understand (deploy_env.yml)
-
-### k8s_ns
-Namespace where the app will be deployed (example: `voting`).
-
-### env
-Chooses the environment folder:
-- `env=dev`  -> manifests in `kubernetes/dev`
-- `env=prod` -> manifests in `kubernetes/prod`
-
-### node_ip
-Node IP used for NodePort checks:
-- vote   -> `http://<node_ip>:31000`
-- result -> `http://<node_ip>:31001`
-
-### project_root and manifests_dir (why the path is logical)
-
-You will see:
-```yaml
-project_root: "{{ playbook_dir }}/../.."
-manifests_dir: "{{ project_root }}/kubernetes/{{ env }}"
-```
-
-Meaning:
-- `playbook_dir` is where the playbook lives: `ansible/playbooks`
-- `../..` goes up two directories to the project root
-- then we add `/kubernetes/{{ env }}`
-
-So:
-- env=dev  -> `<project_root>/kubernetes/dev`
-- env=prod -> `<project_root>/kubernetes/prod`
-
-This makes the playbook portable (works even if you move the repo).
 
 ---
 
-## What deploy_env.yml does (task-by-task)
-1) Show env: prints env and manifests directory  
-2) Create namespace: creates `voting` (ignores if exists)  
-3) Apply PV if exists: PV is cluster-scoped  
-4) Apply manifests: `kubectl apply -n voting -f <manifests_dir>`  
-5) Wait Ready: waits until pods are ready  
-6) Verify endpoints: curl NodePorts 31000/31001
+# Inventory
 
----
 
-## How to run
-DEV:
-```bash
-ansible-playbook -i localhost, ansible/playbooks/deploy_env.yml -e env=dev -e node_ip=172.18.0.2
-```
+inventory.ini
 
-PROD:
-```bash
-ansible-playbook -i localhost, ansible/playbooks/deploy_env.yml -e env=prod -e node_ip=172.18.0.2
-```
 
-Cleanup:
-```bash
-ansible-playbook -i localhost, ansible/playbooks/cleanup.yml
-```
+This inventory runs Ansible locally.
 
----
+Example:
 
-## Common error
-If you see: `the path ... does not exist`
-Then `manifests_dir` points to the wrong folder.
-Fix it to:
-```yaml
-manifests_dir: "{{ project_root }}/kubernetes/{{ env }}"
-```
+```ini
+[local]
+localhost ansible_connection=local
+Variables
+
+Variables are separated by environment.
+
+Development Environment
+vars/dev.yml
+
+Example values:
+
+env: dev
+namespace: voting
+node_ip: 172.18.0.2
+Production Environment
+vars/prod.yml
+
+Example values:
+
+env: prod
+namespace: voting
+node_ip: 172.18.0.2
+
+These variables determine which Kubernetes manifests will be deployed.
+
+Deploy Playbook
+playbooks/deploy.yml
+
+This playbook deploys the Voting Application to Kubernetes.
+
+Main tasks performed:
+
+Print selected environment
+
+Create Kubernetes namespace
+
+Check if PostgreSQL PersistentVolume exists
+
+Apply the PersistentVolume
+
+Apply Kubernetes manifests
+
+Wait until all pods become Ready
+
+Display running pods and services
+
+Cleanup Playbook
+playbooks/cleanup.yml
+
+This playbook removes the deployed resources.
+
+Cleanup steps include:
+
+deleting the namespace
+
+removing PVCs
+
+removing secrets
+
+cleaning deployed resources
+
+How To Deploy
+
+Run deployment using the desired environment variables file.
+
+Deploy Development Environment
+ansible-playbook -i ansible/inventory.ini ansible/playbooks/deploy.yml -e @ansible/vars/dev.yml
+Deploy Production Environment
+ansible-playbook -i ansible/inventory.ini ansible/playbooks/deploy.yml -e @ansible/vars/prod.yml
+How To Cleanup
+ansible-playbook -i ansible/inventory.ini ansible/playbooks/cleanup.yml
+Accessing the Application
+
+After deployment, the services will be available using NodePort.
+
+Vote application:
+
+http://<node_ip>:31000
+
+Result application:
+
+http://<node_ip>:31001
+
+Example:
+
+http://172.18.0.2:31000
+http://172.18.0.2:31001
+Deployment Verification
+
+You can verify the deployment using:
+
+kubectl get pods -n voting
+kubectl get svc -n voting
+kubectl get pvc -n voting
+
+Expected running services:
+
+vote
+
+result
+
+redis
+
+db
+
+worker
+
+Notes
+
+Ansible is used as an automation layer for Kubernetes deployment.
+
+Kubernetes manifests are stored under the kubernetes/ directory.
+
+Environment selection determines which manifests folder is applied.
