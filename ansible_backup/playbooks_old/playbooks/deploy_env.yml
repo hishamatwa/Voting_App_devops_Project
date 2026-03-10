@@ -1,31 +1,41 @@
-- name: Deploy Voting App
-  hosts: all
+- name: Deploy Voting App (env=dev or prod)
+  hosts: localhost
+  connection: local
   gather_facts: false
 
+  vars:
+    k8s_ns: voting
+    env: dev
+    node_ip: "172.18.0.2"
+
+    project_root: "{{ playbook_dir }}/../.."
+    manifests_dir: "{{ project_root }}/kubernetes/{{ env }}"
+ 
+
   tasks:
-    - name: Show environment
+    - name: Show env
       ansible.builtin.debug:
         msg: "Deploying env={{ env }} from {{ manifests_dir }}"
 
-    - name: Create namespace
+    - name: Create namespace (ignore if exists)
       ansible.builtin.command: kubectl create ns {{ k8s_ns }}
       register: ns_create
       failed_when: false
       changed_when: "'created' in ns_create.stdout"
 
-    - name: Check if postgres PV file exists
+    - name: Apply PV (cluster scoped) if exists
       ansible.builtin.stat:
         path: "{{ manifests_dir }}/postgres-pv.yaml"
       register: pvfile
 
-    - name: Apply postgres PV
+    - name: Apply PV
       ansible.builtin.command: kubectl apply -f {{ manifests_dir }}/postgres-pv.yaml
       when: pvfile.stat.exists
 
     - name: Apply manifests
       ansible.builtin.command: kubectl apply -n {{ k8s_ns }} -f {{ manifests_dir }}
 
-    - name: Wait for pods ready
+    - name: Wait for all pods Ready
       ansible.builtin.command: kubectl wait -n {{ k8s_ns }} --for=condition=Ready pod --all --timeout=300s
 
     - name: Show pods and services
@@ -35,3 +45,18 @@
     - name: Print output
       ansible.builtin.debug:
         msg: "{{ out.stdout_lines }}"
+
+    - name: Quick HTTP check (vote)
+      ansible.builtin.command: curl -s -o /dev/null -I http://{{ node_ip }}:31000
+      register: curl_vote
+      failed_when: curl_vote.rc != 0
+
+    - name: Quick HTTP check (result)
+      ansible.builtin.command: curl -s -o /dev/null -I http://{{ node_ip }}:31001
+      register: curl_result
+      failed_when: curl_result.rc != 0
+
+    - name: Success message
+      ansible.builtin.debug:
+        msg: "OK: vote/result reachable on NodePort 31000/31001"
+

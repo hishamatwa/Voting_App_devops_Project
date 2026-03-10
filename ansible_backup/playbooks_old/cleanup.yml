@@ -1,0 +1,28 @@
+- name: Cleanup Voting App
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars:
+    k8s_ns: voting
+
+  tasks:
+    - name: Delete app resources (ignore errors)
+      ansible.builtin.command: kubectl delete -n {{ k8s_ns }} all --all
+      failed_when: false
+
+    - name: Delete network policies (ignore errors)
+      ansible.builtin.command: kubectl delete -n {{ k8s_ns }} networkpolicy --all
+      failed_when: false
+
+    - name: Delete pvc (ignore errors)
+      ansible.builtin.command: kubectl delete -n {{ k8s_ns }} pvc --all
+      failed_when: false
+
+    - name: Delete secret (ignore errors)
+      ansible.builtin.command: kubectl delete -n {{ k8s_ns }} secret db-secret
+      failed_when: false
+
+    - name: Delete namespace (ignore errors)
+      ansible.builtin.command: kubectl delete ns {{ k8s_ns }}
+      failed_when: false

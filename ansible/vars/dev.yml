@@ -1,0 +1,5 @@
+k8s_ns: voting
+env: dev
+node_ip: 172.18.0.2
+project_root: "{{ playbook_dir }}/../.."
+manifests_dir: "{{ project_root }}/kubernetes/dev"

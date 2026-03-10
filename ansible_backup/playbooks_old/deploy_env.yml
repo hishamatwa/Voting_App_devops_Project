@@ -1,4 +1,4 @@
-- name: Deploy Voting App 
+- name: Deploy Voting App (env=dev or prod)
   hosts: localhost
   connection: local
   gather_facts: false
