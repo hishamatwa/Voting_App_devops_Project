@@ -1,8 +1,10 @@
 # Voting App DevOps Project
 
-Linux + Docker + Kubernetes + Ansible
+Linux • Docker • Kubernetes • Ansible
 
-This repository contains an end-to-end DevOps project for deploying a microservices-based Voting Application on Kubernetes using Ansible automation.
+This repository demonstrates an **end-to-end DevOps workflow** for deploying a microservices-based Voting Application on Kubernetes using **Ansible automation**.
+
+The project shows how to structure Kubernetes manifests, automate deployments, and apply basic container and network security practices.
 
 ---
 
@@ -10,31 +12,32 @@ This repository contains an end-to-end DevOps project for deploying a microservi
 
 This project demonstrates:
 
-- a clear microservices architecture
-- Kubernetes manifests organized by environment
-- Ansible playbooks for deployment and cleanup
-- persistent storage for PostgreSQL
-- health checks and container hardening
-- security-focused configuration for the local demo environment
+- Microservices architecture
+- Kubernetes manifests organized by environments
+- Infrastructure automation using Ansible
+- PostgreSQL persistence using PV/PVC
+- Health checks using readiness and liveness probes
+- Container security hardening
+- Basic Kubernetes network security using NetworkPolicies
 
 ---
 
 # Architecture
 
-The application is divided into three main layers.
+The application is composed of several services organized into layers.
 
 ## Frontend Layer
 
 User-facing services:
 
-- **Vote App (Python)**: users submit votes  
-- **Result App (NodeJS)**: users view results  
+- **Vote (Python)** – users submit votes
+- **Result (NodeJS)** – users see voting results
 
-These services are exposed through Kubernetes **NodePort**:
+Both services are exposed using **Kubernetes NodePort**.
 
 ```
-Vote   -> 31000
-Result -> 31001
+Vote Service   -> Port 31000
+Result Service -> Port 31001
 ```
 
 ---
@@ -43,7 +46,8 @@ Result -> 31001
 
 Processing service:
 
-- **Worker (.NET)**: reads votes from Redis and stores processed results in PostgreSQL
+- **Worker (.NET)**  
+  Reads votes from Redis and writes results to PostgreSQL.
 
 ---
 
@@ -51,15 +55,15 @@ Processing service:
 
 Storage services:
 
-- **Redis**: temporary fast data layer used as a queue/buffer
-- **PostgreSQL**: persistent database using PV/PVC
+- **Redis** – temporary queue for votes
+- **PostgreSQL** – persistent storage for results
 
 ---
 
 # Application Flow
 
 ```
-User -> Vote -> Redis -> Worker -> PostgreSQL -> Result
+User → Vote Service → Redis → Worker → PostgreSQL → Result Service
 ```
 
 Architecture diagram:
@@ -87,15 +91,15 @@ architecture/architecture.svg
 # Repository Structure
 
 ```
-kubernetes/     - Kubernetes manifests for base, dev, and prod
-ansible/        - Ansible automation (deploy, cleanup, variables, inventory)
-scripts/        - optional helper scripts
-docs/           - architecture, security review, and meeting notes
-architecture/   - architecture diagram
-frontend/       - reviewer-friendly architecture mapping
-backend/        - reviewer-friendly architecture mapping
-data/           - reviewer-friendly architecture mapping
-security/       - security notes and network policy files
+kubernetes/      Kubernetes manifests for base, dev, and prod
+ansible/         Ansible automation (deploy, cleanup, variables, inventory)
+architecture/    Architecture diagram
+docs/            Documentation and notes
+security/        Security configuration notes
+scripts/         Optional helper scripts
+frontend/        Architecture reference
+backend/         Architecture reference
+data/            Architecture reference
 ```
 
 ---
@@ -104,50 +108,49 @@ security/       - security notes and network policy files
 
 ## kubernetes/base
 
-Minimal reference manifests for learning and structure review.
+Minimal reference manifests used for learning and structure review.
 
 ---
 
 ## kubernetes/dev
 
-Recommended **local demo environment**.
+Recommended **local development and demo environment**.
 
 Includes:
 
-- Secret for PostgreSQL password
+- PostgreSQL Secret
 - PersistentVolume and PersistentVolumeClaim
 - readiness and liveness probes
-- container hardening
+- container security configuration
 - NetworkPolicies
-- NodePort access for frontend services
+- NodePort services for frontend access
 
 ---
 
 ## kubernetes/prod
 
-Production-style manifests with stronger structure than base.
+Production-style structure with similar configuration to dev.
 
 Includes:
 
-- Secret for PostgreSQL password
-- PersistentVolume and PersistentVolumeClaim
+- PostgreSQL Secret
+- PV/PVC configuration
 - readiness and liveness probes
 - container hardening
-- NodePort access for frontend services
+- NodePort services
 
-Note:
-
-Unlike **dev**, the current prod folder does not include the same NetworkPolicy setup.
+Note:  
+The dev environment currently includes stricter **NetworkPolicies** than prod.
 
 ---
 
 # Quick Start (DEV)
 
-The **dev environment** is the recommended setup for local demos.
+The **dev environment** is recommended for local demonstrations.
 
-## 1) Get the node IP
+## 1. Get the node IP
 
-```bash
+```
 kubectl get nodes -o wide
 ```
 
@@ -159,15 +162,15 @@ Example:
 
 ---
 
-## 2) Deploy with Ansible
+## 2. Deploy using Ansible
 
-```bash
+```
 ansible-playbook -i ansible/inventory.ini ansible/playbooks/deploy.yml -e @ansible/vars/dev.yml
 ```
 
 ---
 
-## 3) Access the application
+## 3. Access the application
 
 ```
 http://172.18.0.2:31000
@@ -176,18 +179,18 @@ http://172.18.0.2:31001
 
 ---
 
-## 4) Quick check
+## 4. Verify the application
 
-```bash
+```
 curl -I http://172.18.0.2:31000
 curl -I http://172.18.0.2:31001
 ```
 
 ---
 
-## 5) Verify resources
+## 5. Check Kubernetes resources
 
-```bash
+```
 kubectl get pods -n voting
 kubectl get svc -n voting
 kubectl get networkpolicy -n voting
@@ -195,17 +198,17 @@ kubectl get networkpolicy -n voting
 
 ---
 
-# Deploy (PROD)
+# Deploy Production Environment
 
-```bash
+```
 ansible-playbook -i ansible/inventory.ini ansible/playbooks/deploy.yml -e @ansible/vars/prod.yml
 ```
 
 ---
 
-# Cleanup
+# Cleanup Deployment
 
-```bash
+```
 ansible-playbook -i ansible/inventory.ini ansible/playbooks/cleanup.yml
 ```
 
@@ -213,14 +216,14 @@ ansible-playbook -i ansible/inventory.ini ansible/playbooks/cleanup.yml
 
 # Security Highlights
 
-Implemented security controls include:
+Implemented security practices include:
 
-- Kubernetes **Secret** for PostgreSQL password
-- **PersistentVolume / PersistentVolumeClaim** for PostgreSQL persistence
-- readiness and liveness probes
-- **SecurityContext hardening**
+- Kubernetes **Secrets** for database credentials
+- **PersistentVolume / PersistentVolumeClaim** for database storage
+- **Readiness and Liveness Probes**
+- Container **SecurityContext hardening**
 
-Container security configuration includes:
+Container restrictions include:
 
 ```
 allowPrivilegeEscalation: false
@@ -229,23 +232,23 @@ seccompProfile: RuntimeDefault
 
 Network security:
 
-- **NetworkPolicies in the dev environment**
+- NetworkPolicies in the dev environment
 - default deny ingress
-- allow internal namespace communication
-- allow external access only to vote and result
+- controlled communication between services
+- external access limited to frontend services
 
 ---
 
 # Notes
 
-- **dev** is the recommended environment for local demos and presentations.
+- **dev** is recommended for demos and development.
 - **base** is mainly for learning and reference.
-- **prod** is a more production-style layout, but may need additional improvements for full production readiness.
+- **prod** represents a production-style structure but may require additional improvements for real production environments.
 
 ---
 
 # Project Reference
 
-Based on the Voting App microservices idea:
+Inspired by the Voting App microservices example:
 
 https://github.com/nexusameer/Voting-App-Microservices
